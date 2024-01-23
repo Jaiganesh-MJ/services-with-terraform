@@ -1,8 +1,9 @@
 🚀 Sharing Knowledge: Streaming ECS Container Logs to CloudWatch 🚀
 
-Hey LinkedIn community! 👋 Excited to share a quick tutorial on how to seamlessly stream logs from your ECS container to CloudWatch. Whether you're working with AWS, Terraform, or just diving into container orchestration, this step-by-step guide can be a handy reference. 🌐
+Quick tutorial on how to seamlessly stream logs from your ECS container to CloudWatch. Whether you're working with AWS, Terraform, or just diving into container orchestration, this step-by-step guide can be a handy reference. 🌐
 
-Step 1: Set Up ECS Container 🛠️
+
+**Step 1: Set Up ECS Container** 🛠️
 Ensure your ECS container is configured. If not, no worries! I've included a Terraform snippet to help set up your ECS cluster. It even comes with a launch configuration, autoscaling group, and an IAM role for good measure.
 
 data "aws_ami" "ecs_ami" {
@@ -16,7 +17,7 @@ data "aws_ami" "ecs_ami" {
   owners = ["amazon"]
 }
 
-# Create an ECS cluster
+#Create an ECS cluster
 resource "aws_ecs_cluster" "my_cluster" {
   name = var.environment
 
@@ -44,7 +45,7 @@ resource "aws_iam_role" "ecs_instance_role" {
 }
 
 
-# Create an IAM instance profile for ECS instances
+#Create an IAM instance profile for ECS instances
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = var.env_instance_profile
   role = aws_iam_role.ecs_instance_role.name
@@ -55,7 +56,7 @@ resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
   role       = aws_iam_role.ecs_instance_role.name
 }
 
-# Create a launch configuration for the EC2 instances
+#Create a launch configuration for the EC2 instances
 resource "aws_launch_configuration" "my_launch_config" {
   name_prefix   = var.launch_config_name
   image_id      = data.aws_ami.ecs_ami.id
@@ -78,7 +79,7 @@ resource "aws_launch_configuration" "my_launch_config" {
   }
 }
 
-# Create an auto scaling group to launch the EC2 instances
+#Create an auto scaling group to launch the EC2 instances
 resource "aws_autoscaling_group" "my_asg" {
   name                 = var.environment
   max_size             = 1
@@ -97,7 +98,7 @@ resource "aws_autoscaling_group" "my_asg" {
   }
 }
 
-# Create a task definition for the service
+#Create a task definition for the service
 resource "aws_ecs_task_definition" "my_task_definition" {
   family                   = var.environment
   network_mode             = "bridge"
@@ -144,7 +145,7 @@ resource "aws_ecs_task_definition" "my_task_definition" {
 }
 
 
-# Create a new Application Load Balancer
+#Create a new Application Load Balancer
 resource "aws_lb" "ecs_lb" {
   name               = var.environment
   internal           = false
@@ -158,7 +159,7 @@ resource "aws_lb" "ecs_lb" {
   }
 }
 
-# Create a listener on the ALB
+#Create a listener on the ALB
 resource "aws_lb_listener" "ecs_lb_listener" {
   load_balancer_arn = aws_lb.ecs_lb.arn
   port              = 443
@@ -173,7 +174,7 @@ resource "aws_lb_listener" "ecs_lb_listener" {
   }
 }
 
-# Create a target group for the ECS service
+#Create a target group for the ECS service
 resource "aws_lb_target_group" "ecs_target_group" {
   name        = var.ecs_target_group
   port        = 443
@@ -188,14 +189,14 @@ resource "aws_lb_target_group" "ecs_target_group" {
   }
 }
 
-# Create an ECS service to run the task definition
+#Create an ECS service to run the task definition
 resource "aws_ecs_service" "my_service" {
   name            = var.environment
   cluster         = aws_ecs_cluster.my_cluster.id
   task_definition = aws_ecs_task_definition.my_task_definition.arn
   launch_type     = "EC2"
 
-  # Attach the ALB as the target group for this service
+  #Attach the ALB as the target group for this service
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = var.environment
@@ -210,8 +211,7 @@ resource "aws_ecs_service" "my_service" {
   desired_count = 1
 }
 
-Step 2: Install CloudWatch Agent ☁️
-
+**Step 2: Install CloudWatch Agent ☁️**
 In the next step, we will install the CloudWatch agent on the container instance. While it's possible to install it along with user data, this guide will cover the manual installation process to provide a clear understanding of the involved commands.
 
 a. SSH into the container instance using the command below:
@@ -268,7 +268,7 @@ h. Check the agent status using the following command:
 $ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
 
 
-Step 3: Mount ECS Container Instance Path 🗂️
+**Step 3: Mount ECS Container Instance Path 🗂️**
 
 Now, it's time for the main scene! Mount the ECS container instance path with the container. Below is the Terraform code to update your configuration. I've already completed these steps when creating the ECS configuration, but I'm providing the code for reference.
 
@@ -294,12 +294,21 @@ So, the mountpoint should be the path of logs in the container, and the volume h
 Additionally, I'm mentioning the manual steps to configure volume in ECS.
 
 a. Open the necessary task definition that we need to configure volume.
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/7e067952-c637-48be-8a22-e10e86889135)
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/320af491-ba59-4943-b8a7-cfaa32e7d7ad)
+
 b. Scroll down to the end of the page. Here, we can add a volume.
 c. Click "Add volume," enter the name of the volume, volume type, and source path.
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/462c2cf9-b26d-4fc8-aadc-0ac429bc58ed)
+
 d. In the mount point, choose the container, source volume, and container path.
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/5db9a00d-dcc9-4f3b-b3d1-1fda0b702a5b)
+
 e. Once this is done, click create to update the settings.
 We've created a new version of the task definition. Now, we need to update the service to reflect the changes. To do that, execute the following AWS CLI command.
 $ aws ecs update-service --cluster dev-2 --service dev-2 --force-new-deployment --region $region
 
 
 Once everything is done, you can check logs in CloudWatch within the specific log group we mentioned.
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/f97f1f8e-675f-4e12-b2c7-522e1a87747c)
+
