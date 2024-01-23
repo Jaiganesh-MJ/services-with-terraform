@@ -215,25 +215,37 @@ resource "aws_ecs_service" "my_service" {
 ```
 
 **Step 2: Install CloudWatch Agent ☁️**
+
 In the next step, we will install the CloudWatch agent on the container instance. While it's possible to install it along with user data, this guide will cover the manual installation process to provide a clear understanding of the involved commands.
 
 a. SSH into the container instance using the command below:
+```
 $ ssh -i "key.pem" user_name@dns_name
+```
 
 b. Once logged into the server, create a directory to store agent packages:
+```
 $ mkdir cloudwatch
 $ cd cloudwatch
+```
 
 c. Download the CloudWatch agent package using the following command:
+```
 $ wget https://amazoncloudwatch-agent.s3.amazonaws.com/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+```
 
 d. Install the Amazon CloudWatch Agent on the system using the RPM package manager:
+```
 $ sudo rpm -U ./amazon-cloudwatch-agent.rpm
+```
 
 e. Now that the CloudWatch agent is installed, it's time to update the logs to be monitored. Open the config.json file and update the configurations:
+```
 $ vi /opt/aws/amazon-cloudwatch-agent/bin/config.json
+```
 
 f. Add the necessary log configurations. In this example, monitoring only nginx logs is demonstrated:
+```
 {
   "agent": {
     "metrics_collection_interval": 10,
@@ -260,22 +272,25 @@ f. Add the necessary log configurations. In this example, monitoring only nginx 
     }
   }
 }
-
+```
 
 
 g. Sync the CloudWatch config with the agent:
+```
 $ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
-
+```
 
 h. Check the agent status using the following command:
+```
 $ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
-
+```
 
 **Step 3: Mount ECS Container Instance Path 🗂️**
 
 Now, it's time for the main scene! Mount the ECS container instance path with the container. Below is the Terraform code to update your configuration. I've already completed these steps when creating the ECS configuration, but I'm providing the code for reference.
 
 Add mountpoints inside container definitions:
+```
 "mountPoints": [
   {
     "sourceVolume": "nginx-logs",
@@ -289,7 +304,7 @@ volume {
     name      = "nginx-logs"
     host_path = "/home/ec2-user/my-logs/"
 }
-
+```
 
 So, the mountpoint should be the path of logs in the container, and the volume host path is where the logs need to be synced.
 
