@@ -4,8 +4,10 @@ Quick tutorial on how to seamlessly stream logs from your ECS container to Cloud
 
 
 **Step 1: Set Up ECS Container** 🛠️
+
 Ensure your ECS container is configured. If not, no worries! I've included a Terraform snippet to help set up your ECS cluster. It even comes with a launch configuration, autoscaling group, and an IAM role for good measure.
 
+```
 data "aws_ami" "ecs_ami" {
   most_recent = true
 
@@ -210,6 +212,7 @@ resource "aws_ecs_service" "my_service" {
 
   desired_count = 1
 }
+```
 
 **Step 2: Install CloudWatch Agent ☁️**
 In the next step, we will install the CloudWatch agent on the container instance. While it's possible to install it along with user data, this guide will cover the manual installation process to provide a clear understanding of the involved commands.
