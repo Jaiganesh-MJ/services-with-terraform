@@ -22,10 +22,10 @@ $ mkdir terraform-scripts
 ```
 
 
-7. Create two Python scripts for starting and stopping the EC2 instance:
+6. Create two Python scripts for starting and stopping the EC2 instance:
 
-a. `ec2_start.py`
 # Python script for stopping EC2 instances
+a. `ec2_start.py`
 ```
 import boto3
 
@@ -38,8 +38,8 @@ def lambda_handler(event, context):
     print('Started your instances: ' + str(instances))
 ```
 
-b. `ec2_stop.py`
 # Python script for stopping EC2 instances
+b. `ec2_stop.py`
 ```
 import boto3
 
@@ -53,7 +53,7 @@ def lambda_handler(event, context):
 ```
 Note: Don't forget to update the instance ID and region in the Python code.
 
-8. Now use the Terraform script below to set up Lambda functions for starting and stopping EC2 instances.
+7. Now use the Terraform script below to set up Lambda functions for starting and stopping EC2 instances.
 
 ```
 variable "region" {}
@@ -173,15 +173,15 @@ resource "aws_lambda_function" "ec2_start" {
 }
 ```
 
-9. Save the file and apply the changes
+8. Save the file and apply the changes
 ```
 $ terraform apply
 ```
 
-10. Once done, you will see a page indicating that the two Lambda functions have been created.
+9. Once done, you will see a page indicating that the two Lambda functions have been created.
     ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/914ff6e6-bd89-4a62-8a9c-b89636416101)
 
-11. Now, configure EventBridge to automate the process. The following script will create a rule to start the EC2 instance at 10 AM and stop it at 6 PM.
+10. Now, configure EventBridge to automate the process. The following script will create a rule to start the EC2 instance at 10 AM and stop it at 6 PM.
 
 ```
 resource "aws_cloudwatch_event_rule" "morning_rule" {
@@ -226,6 +226,6 @@ resource "aws_lambda_permission" "ec2_stop_perm" {
 }
 ```
 
-12. Once created, you can see the rule updated in the Lambda function.
+11. Once created, you can see the rule updated in the Lambda function.
 ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/98d30aad-082b-45d8-9b24-91600415beae)
 
