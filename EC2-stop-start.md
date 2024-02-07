@@ -179,9 +179,10 @@ $ terraform apply
 ```
 
 9. Once done, you will see a page indicating that the two Lambda functions have been created.
-    ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/914ff6e6-bd89-4a62-8a9c-b89636416101)
 
-10. Now, configure EventBridge to automate the process. The following script will create a rule to start the EC2 instance at 10 AM and stop it at 6 PM.
+   ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/914ff6e6-bd89-4a62-8a9c-b89636416101)
+
+11. Now, configure EventBridge to automate the process. The following script will create a rule to start the EC2 instance at 10 AM and stop it at 6 PM.
 
 ```
 resource "aws_cloudwatch_event_rule" "morning_rule" {
@@ -227,6 +228,7 @@ resource "aws_lambda_permission" "ec2_stop_perm" {
 ```
 
 11. Once created, you can see the rule updated in the Lambda function.
+
 ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/98d30aad-082b-45d8-9b24-91600415beae)
 
 
