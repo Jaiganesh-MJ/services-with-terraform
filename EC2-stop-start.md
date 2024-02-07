@@ -1,0 +1,5 @@
+I'd like to share a document, especially relevant for DevOps engineers, as many of us have encountered questions from clients about high AWS charges for resources. After analyzing the situation, we devised a plan to remove unused resources from AWS. In some cases, we identified resources that weren't needed 24/7, such as non-production environments or applications hosted in Docker containers running on EC2 instances.
+
+For instance, these environments may only be necessary during working hours, say from 9 AM to 5 PM. During other times, we can optimize costs by stopping the virtual machines. I implemented this setup during my initial stages, and upon reflection, I realized it took a considerable amount of time to set up for another project. To streamline the process, I decided to use Terraform. In this example, I demonstrate how to stop an EC2 instance, but a similar approach can be applied to other resources. Below are the steps to configure this using Terraform.
+
+Feel free to share your thoughts or ask any questions!
