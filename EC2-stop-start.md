@@ -25,7 +25,7 @@ $ mkdir terraform-scripts
 
 7. Create two python scripts for stop and start the EC2 instance
 a. ec2_start.py
-
+```
 import boto3
 import os
 region = 'eu-west-1'
@@ -35,8 +35,10 @@ ec2 = boto3.client('ec2', region_name=region)
 def lambda_handler(event, context):
     ec2.start_instances(InstanceIds=instances)
     print('started your instances: ' + str(instances))
+```
 
 b. ec2_stop.py
+```
 import boto3
 import os
 region = ''
@@ -46,12 +48,13 @@ ec2 = boto3.client('ec2', region_name=region)
 def lambda_handler(event, context):
     ec2.stop_instances(InstanceIds=instances)
     print('stopped your instances: ' + str(instances))
+```
 
 Note: Don't forgot to update instance id and region in above python code
 
 8. Now use the below terraform script to setup lambda function, this includes creation of IAM policy, lambda fucntion with python3.9 along with the code that we mentioned before.
 
----
+```
 variable "region" {}
 
 variable "instance_id" {}
@@ -167,6 +170,5 @@ resource "aws_lambda_function" "ec2_start" {
     }
   }
 }
-
----
+```
    
