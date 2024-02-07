@@ -25,8 +25,8 @@ $ mkdir terraform-scripts
 7. Create two Python scripts for starting and stopping the EC2 instance:
 
 a. `ec2_start.py`
-```python
-# Python script for starting EC2 instances
+# Python script for stopping EC2 instances
+```
 import boto3
 
 region = 'eu-west-1'
@@ -36,11 +36,11 @@ ec2 = boto3.client('ec2', region_name=region)
 def lambda_handler(event, context):
     ec2.start_instances(InstanceIds=instances)
     print('Started your instances: ' + str(instances))
-
+```
 
 b. `ec2_stop.py`
-```
 # Python script for stopping EC2 instances
+```
 import boto3
 
 region = ''
