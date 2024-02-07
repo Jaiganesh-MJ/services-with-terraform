@@ -171,4 +171,59 @@ resource "aws_lambda_function" "ec2_start" {
   }
 }
 ```
-   
+
+9. Save the file and apply the changes
+```
+$ terraform apply
+```
+
+10. Once it done you will be see the similar page like below, means two lambda functions are created.
+    ![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/914ff6e6-bd89-4a62-8a9c-b89636416101)
+
+11. Now time to configure event bridge to automate the process. The below script will help to launch an bridge rule and it will start the EC2 instance at 10AM and stop at 6PM
+
+```
+resource "aws_cloudwatch_event_rule" "morning_rule" {
+  name        = "morning_rule"
+  description = "Rule to trigger Lambda function at 10 AM"
+  schedule_expression = "cron(0 10 * * ? *)"
+
+}
+
+resource "aws_cloudwatch_event_rule" "evening_rule" {
+  name        = "evening_rule"
+  description = "Rule to trigger Lambda function at 6 PM"
+  schedule_expression = "cron(0 18 * * ? *)"
+
+}
+
+resource "aws_cloudwatch_event_target" "morning_lambda_target" {
+  rule      = aws_cloudwatch_event_rule.morning_rule.name
+  arn       = aws_lambda_function.ec2_start.arn
+  target_id = "morning_lambda_target"
+}
+
+resource "aws_cloudwatch_event_target" "evening_lambda_target" {
+  rule      = aws_cloudwatch_event_rule.evening_rule.name
+  arn       = aws_lambda_function.ec2_stop.arn
+  target_id = "evening_lambda_target"
+}
+
+
+resource "aws_lambda_permission" "ec2_start_perm" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ec2_start.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.morning_rule.arn
+}
+
+resource "aws_lambda_permission" "ec2_stop_perm" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ec2_stop.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.evening_rule.arn
+}
+```
+
+12. Once created we can see the rule updated in lambda
+![image](https://github.com/Jaiganesh-MJ/services-with-terraform/assets/63336185/98d30aad-082b-45d8-9b24-91600415beae)
